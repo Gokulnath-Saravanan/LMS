@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <title>Library Management System</title>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Library Management System</h1>
+        
+        <div class="form-container">
+            <input type="text" id="title" placeholder="Enter Book Title">
+            <input type="text" id="author" placeholder="Enter Author Name">
+            <input type="text" id="description" placeholder="Enter Book Description (Optional)">
+            <input type="text" id="category" placeholder="Enter Book Category">
+            <select id="availability">
+                <option value="Available">Available</option>
+                <option value="Borrowed">Borrowed</option>
+            </select>
+            <button onclick="addBook()">Add Book</button>
+            <button onclick="deleteBook()">Delete Book</button>
+            <button onclick="editBook()">Edit Book</button>
+            <button onclick="clearFields()">Clear Fields</button>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" id="search" placeholder="Search Book by Title">
+            <button onclick="searchBook()">Search</button>
+            <button onclick="viewAllBooks()">View All Books</button>
+            <button onclick="filterByCategory()">Filter by Category</button>
+            <button onclick="sortBooks('title')">Sort by Title</button>
+            <button onclick="sortBooks('author')">Sort by Author</button>
+        </div>
+
+        <div class="borrow-return-container">
+            <input type="text" id="borrowTitle" placeholder="Enter Book Title to Borrow/Return">
+            <button onclick="borrowBook()">Borrow Book</button>
+            <button onclick="returnBook()">Return Book</button>
+        </div>
+
+        <div class="book-list">
+            <h2>📖 Books in Library</h2>
+            <ul id="books">
+                
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function addBook() {
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+            const description = document.getElementById('description').value;
+            const category = document.getElementById('category').value;
+            const availability = document.getElementById('availability').value;
+
+            if (!title || !author || !category) {
+                alert("Please fill out title, author, and category fields.");
+                return;
+            }
+
+            const response = await fetch("/add_book", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, author, description, category, availability })
+            });
+            const result = await response.json();
+            alert(result.message || result.error);
+            viewAllBooks();
+        }
+
+        async function borrowBook() {
+            const title = document.getElementById('borrowTitle').value;
+
+            if (!title) {
+                alert("Please enter the title of the book to borrow.");
+                return;
+            }
+
+            const response = await fetch("/borrow_book", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title })
+            });
+            const result = await response.json();
+            alert(result.message || result.error);
+            viewAllBooks();
+        }
+
+        async function returnBook() {
+            const title = document.getElementById('borrowTitle').value;
+
+            if (!title) {
+                alert("Please enter the title of the book to return.");
+                return;
+            }
+
+            const response = await fetch("/return_book", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title })
+            });
+            const result = await response.json();
+            alert(result.message || result.error);
+            viewAllBooks();
+        }
+
+        async function filterByCategory() {
+            const category = document.getElementById('category').value.toLowerCase();
+
+            if (!category) {
+                alert("Please enter a category to filter.");
+                return;
+            }
+
+            const response = await fetch("/books");
+            const books = await response.json();
+            const booksList = document.getElementById('books');
+            booksList.innerHTML = "";
+            const filteredBooks = books.filter(book => book.Category.toLowerCase() === category);
+
+            if (filteredBooks.length === 0) {
+                alert("No books found in this category.");
+            } else {
+                filteredBooks.forEach(book => {
+                    const li = document.createElement('li');
+                    li.textContent = `${book.Title} by ${book.Author} (${book.Category}) - ${book.Description || "No description"} [${book.Availability}]`;
+                    booksList.appendChild(li);
+                });
+            }
+        }
+
+      
+
+        async function viewAllBooks() {
+            const response = await fetch("/books");
+            const books = await response.json();
+            const booksList = document.getElementById('books');
+            booksList.innerHTML = "";
+            books.forEach(book => {
+                const li = document.createElement('li');
+                li.textContent = `${book.Title} by ${book.Author} (${book.Category}) - ${book.Description || "No description"} [${book.Availability}]`;
+                booksList.appendChild(li);
+            });
+        }
+
+        window.onload = viewAllBooks;
+    </script>
+</body>
+</html>
