@@ -11,9 +11,9 @@ This is a Flask-based web application that allows users to manage a library of b
 
 ---
 
-## Project Structure
-
-library-management-system/
+## 📂 Project Structure
+      
+        library-management-system/
         ├── static/
         │   ├── css/
         │   │   └── style.css
@@ -25,6 +25,7 @@ library-management-system/
         ├── app.py
         ├── requirements.txt
         ├── README.md
+
 ---
 
 ## Requirements
