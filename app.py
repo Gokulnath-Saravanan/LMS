@@ -30,7 +30,7 @@ class Library:
         return self.books
 
     def save_books_to_file(self):
-        """Save the current list of books to a JSON file"""
+        """Save the current list of books to a json file"""
         if not os.path.exists('data'):
             os.mkdir('data')
         with open("data/books.json", "w") as file:
